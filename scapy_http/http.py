@@ -4,10 +4,15 @@
 # This program is published under a GPLv2 license
 
 import re
-from scapy3k.packet import Packet, bind_layers
-from scapy3k.fields import StrField
-from scapy3k.layers.inet import TCP
-
+try:
+    from scapy3k.packet import Packet, bind_layers
+    from scapy3k.fields import StrField
+    from scapy3k.layers.inet import TCP
+except:
+    from scapy.packet import Packet, bind_layers
+    from scapy.fields import StrField
+    from scapy.layers.inet import TCP
+    
 
 def _canonicalize_header(name):
     ''' Takes a header key (i.e., "Host" in "Host: www.google.com",
