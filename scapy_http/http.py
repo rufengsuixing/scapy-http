@@ -4,9 +4,9 @@
 # This program is published under a GPLv2 license
 
 import re
-from scapy.packet import Packet, bind_layers
-from scapy.fields import StrField
-from scapy.layers.inet import TCP
+from scapy3k.packet import Packet, bind_layers
+from scapy3k.fields import StrField
+from scapy3k.layers.inet import TCP
 
 
 def _canonicalize_header(name):
@@ -15,6 +15,8 @@ def _canonicalize_header(name):
     return name.strip().lower()
 
 def _parse_headers(s):
+    if type(s)==bytes:
+        s=s.decode()
     headers = s.split("\r\n")
     headers_found = {}
     for header_line in headers:
@@ -75,10 +77,11 @@ def _get_field_value(obj, name):
     val = []
     for header_name in headers:
         try:
-            header_value = obj.getfieldval(header_name.capitalize())
+            header_name_t='-'.join([a.capitalize() for a in header_name.split('-')])
+            header_value = obj.getfieldval(header_name_t)
             # If we provide a parsed representation for this header
             headers[header_name] = header_value
-            val.append('%s: %s' % (header_name.capitalize(), header_value))
+            val.append('%s: %s' % (header_name_t, header_value))
         except AttributeError as e:
             # If we don't provide a parsed representation
             val.append(headers[header_name])
@@ -106,6 +109,8 @@ def _self_build(obj, field_pos_list=None):
         else:
           separator = newline
         # Add the field into the packet
+        if type(val)==str:
+            val=val.encode()
         p = f.addfield(obj, p, val + separator)
     # The packet might be empty, and in that case it should stay empty.
     if p:
